@@ -21,3 +21,26 @@
     ],
     "compiler": "art"
   }
+{
+    "name": "Healing Gems #1",
+    "description": "Some type of wonder-ful... ",
+    "image": "ipfs://QmXuXXcF4gtTkLHNyW4cXKAktNiCpo8au2vUdVfTbRViK8/1.png",
+    "dna": "b847242d376066b5d891106597cad642997d2916",
+    "edition": 1,
+    "date": 1647948121411,
+    "attributes": [
+      {
+        "trait_type": "Background",
+        "value": "bg3"
+      },
+      {
+        "trait_type": "Face",
+        "value": "Dark "
+      },
+      {
+        "trait_type": "Shirt",
+        "value": ""
+      }
+    ],
+    "compiler": "art"
+  }
