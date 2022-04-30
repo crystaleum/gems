@@ -1,5 +1,5 @@
-const AngelFactory = artifacts.require("AngelFactory");
+const GemFactory = artifacts.require("GemFactory");
 
 module.exports = async function (deployer) {
-  await deployer.deploy(AngelFactory);
+  await deployer.deploy(GemFactory);
 };
