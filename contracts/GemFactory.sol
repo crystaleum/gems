@@ -153,21 +153,21 @@ abstract contract AssignRandomAngel is AngelsSupply {
 		return value + startFrom;
 	}
 }
-contract AngelFactory is IHealGems, MultiAuth, AssignRandomAngel, ReentrancyGuard {
-    using Address for address;
-	using Strings for uint256;
-    using SafeMath for uint8;
-    using SafeMath for uint16;
-    using SafeMath for uint128;
-    using SafeMath for uint248;
-    using Counters for Counters.Counter;
+contract GemFactory is IHealGems, MultiAuth, AssignRandomAngel, ReentrancyGuard {
+        using Address for address;
+        using Strings for uint256;
+        using SafeMath for uint8;
+        using SafeMath for uint16;
+        using SafeMath for uint128;
+        using SafeMath for uint248;
+        using Counters for Counters.Counter;
 
-    event MintingLaunched(bool update);
-    event MintingLocked(bool status);
-    event MetadataFROZEN(bool freezer);
-    event OperatorClaimedDonations(bool claimed, address recipient, uint256 amount);
-    event OperatorSharedDonations(bool claimed, address recipient, uint256 amount);
-    event OperatorWithdrewAllDonations(bool claimed, address recipient, uint256 amount);
+        event MintingLaunched(bool update);
+        event MintingLocked(bool status);
+        event MetadataFROZEN(bool freezer);
+        event OperatorClaimedDonations(bool claimed, address recipient, uint256 amount);
+        event OperatorSharedDonations(bool claimed, address recipient, uint256 amount);
+        event OperatorWithdrewAllDonations(bool claimed, address recipient, uint256 amount);
 
 	struct MintStats {
 		uint256 _mintQtyByAddress;
@@ -183,36 +183,36 @@ contract AngelFactory is IHealGems, MultiAuth, AssignRandomAngel, ReentrancyGuar
 	/*
 	 * Variables
 	 */
-	IHealAngels public nftFactoryContract;
-	HealingGems nftContractAddress;
-    address payable private _cryptocurrencyDevelopers = payable(msg.sender);
-	address payable _healAngelsDonationsAddress;
-    address payable public proxyRegistryAddress;
+        IHealAngels public nftFactoryContract;
+        HealingGems nftContractAddress;
+        address payable private _cryptocurrencyDevelopers = payable(msg.sender);
+        address payable _healAngelsDonationsAddress;
+        address payable public proxyRegistryAddress;
 
-	string private baseURI = "https://raw.githubusercontent.com/Heal-The-World-Charity-Foundation/Heal-Angel/main/meta/";
-	string public _tokenBaseURI;
+        string private baseURI = "https://raw.githubusercontent.com/Heal-The-World-Charity-Foundation/Heal-Angel/main/meta/";
+        string public _tokenBaseURI;
 
-	bool private seeded = false;
-	bool private soldOut = false;
-	bool private claimActive = false;
-	bool private freezeMeta = false;
+        bool private seeded = false;
+        bool private soldOut = false;
+        bool private claimActive = false;
+        bool private freezeMeta = false;
 
-    Counters.Counter private _tokenIdCounter;
+	Counters.Counter private _tokenIdCounter;
 	SeedPhase public phase = SeedPhase.Locked;
 
-    uint128 public _burnedSupply;
-	uint128 public totalDonated;
-	uint128 public mintDonation = 0.1 ether;
-    uint128 public _maxWhitelist = NUMBER_OF_WHITELIST_ANGELS;  
-	uint248 public developmentDonationsFactor = 90; // 10% donated to devs
+    	uint128 public _burnedSupply;
+    	uint128 public totalDonated;
+    	uint128 public mintDonation = 0.1 ether;
+    	uint128 public _maxWhitelist = NUMBER_OF_WHITELIST_ANGELS;  
+    	uint248 public developmentDonationsFactor = 90; // 10% donated to devs
 
-    uint256 public _totalSupply;
-    uint256 public _maxSupply = MAX_ANGELS_SUPPLY;
+    	uint256 public _totalSupply;
+    	uint256 public _maxSupply = MAX_ANGELS_SUPPLY;
 
-    mapping (address => string) private _holdersNFT;
-    mapping (uint256 => string) private _tokenURIs;
-	mapping(address => MintStats) public minterAddress;
-    mapping (address => bool) public _whitelisted;
+    	mapping (address => string) private _holdersNFT;
+    	mapping (uint256 => string) private _tokenURIs;
+    	mapping(address => MintStats) public minterAddress;
+    	mapping (address => bool) public _whitelisted;
 
 	/*
 	 * Constructor
@@ -259,14 +259,14 @@ contract AngelFactory is IHealGems, MultiAuth, AssignRandomAngel, ReentrancyGuar
 	/// Approve to Whitelist 
 	/// @dev approve wallet to be whitelisted
 	function whitelistUser(address _wallet) public onlyOwner {
-        _whitelisted[_wallet] = true;
-    }
+        	_whitelisted[_wallet] = true;
+    	}
 
 	/// Remove from Whitelist 
 	/// @dev deauthorize whitelisted account
-    function removeWhitelistUser(address _wallet) public onlyOwner {
-        _whitelisted[_wallet] = false;
-    }
+    	function removeWhitelistUser(address _wallet) public onlyOwner {
+        	_whitelisted[_wallet] = false;
+    	}
 
 	/// Set the base URI for the metadata
 	/// @dev modifies the state of the `_tokenBaseURI` variable
@@ -358,8 +358,8 @@ contract AngelFactory is IHealGems, MultiAuth, AssignRandomAngel, ReentrancyGuar
 	/// Make a payment
 	/// @dev internal fn called by `claimPayments` to send Ether to an address
 	function withdrawAllETH(address payable recipient) public onlyOwner {
-        // get the amount of Ether stored in this contract
-        uint256 contractETHBalance = address(this).balance;
+        	// get the amount of Ether stored in this contract
+        	uint256 contractETHBalance = address(this).balance;
 		(bool success, ) = recipient.call{value: contractETHBalance}('');
 		require(success, 'Transfer failed.');    	
 		emit OperatorWithdrewAllDonations(true, recipient, contractETHBalance);
@@ -367,52 +367,52 @@ contract AngelFactory is IHealGems, MultiAuth, AssignRandomAngel, ReentrancyGuar
     
 	/// Rescue any accidental tokens sent to contract
 	/// @dev public fn called by `rescueStuckTokens` to extract ERC20 tokens to an address
-    function rescueStuckTokens(address _tok, address payable recipient, uint256 amount) public payable onlyOwner {
-        uint256 contractTokenBalance = IERC20(_tok).balanceOf(address(this));
-        require(amount <= contractTokenBalance, "Request exceeds contract token balance.");
-        // rescue stuck tokens 
-        IERC20(_tok).transfer(recipient, amount);
-    }
+    	function rescueStuckTokens(address _tok, address payable recipient, uint256 amount) public payable onlyOwner {
+        	uint256 contractTokenBalance = IERC20(_tok).balanceOf(address(this));
+        	require(amount <= contractTokenBalance, "Request exceeds contract token balance.");
+        	// rescue stuck tokens 
+        	IERC20(_tok).transfer(recipient, amount);
+    	}
 
 	// ======================================================== External / Public Functions
     
 	/// DONATE 
-    // public function to make donations to organization & development
-    function donate() public payable returns(bool) {
+    	// public function to make donations to organization & development
+    	function donate() public payable returns(bool) {
 		uint248 contributions = uint248(msg.value);
 		uint248 organizationDonations = uint248(contributions).mul(uint248(developmentDonationsFactor)).div(100);
 		uint248 devDonations = uint248(contributions).sub(organizationDonations);
-        (bool donatedToOrg,) = _healAngelsDonationsAddress.call{value: organizationDonations}("");
-        require(donatedToOrg, "Invalid, failed to send organization donations. Kindly try again, or send coins & tokens directly to this contract Thank you! ");
-        (bool donatedToDevs,) = _cryptocurrencyDevelopers.call{value: devDonations}("");
-        require(donatedToDevs, "Invalid, failed to send develepment donations. Kindly try again, or send coins & tokens directly to this contract. Thank you! ");
+        	(bool donatedToOrg,) = _healAngelsDonationsAddress.call{value: organizationDonations}("");
+        	require(donatedToOrg, "Invalid, failed to send organization donations. Kindly try again, or send coins & tokens directly to this contract Thank you! ");
+        	(bool donatedToDevs,) = _cryptocurrencyDevelopers.call{value: devDonations}("");
+        	require(donatedToDevs, "Invalid, failed to send develepment donations. Kindly try again, or send coins & tokens directly to this contract. Thank you! ");
 		return true;
-    }
+    	}
 
 	/// Get burned supply
-    function burnedSupply() public pure returns (uint) {
-        return _burnedSupply; 
-    }
+    	function burnedSupply() public pure returns (uint) {
+        	return _burnedSupply; 
+    	}
 
 	/// Get total supply
-    function totalSupply() public pure returns (uint) {
+    	function totalSupply() public pure returns (uint) {
 		try _totalSupply.sub(_burnedSupply) returns (uint) {
 			_totalSupply = _totalSupply.sub(_burnedSupply);
 		} catch { 
 			return _totalSupply;
 		} 
-    }
+    	}
 
 	/// Get max supply
-    function getMaxSupply() public pure returns (uint) {
+    	function getMaxSupply() public pure returns (uint) {
 		return _maxSupply;
-    }
+    	}
   
 	/// Get total donations 
-    // public function to return the amount of donations
-    function getTotalDonations() view public returns(uint128) {
-        return totalDonated;
-    }
+    	// public function to return the amount of donations
+    	function getTotalDonations() view public returns(uint128) {
+        	return totalDonated;
+    	}
 
 	/// Mint exclusively for Whitelisted addresses
 	/// @notice mints tokens with randomized token IDs to addresses eligible for presale
@@ -421,22 +421,22 @@ contract AngelFactory is IHealGems, MultiAuth, AssignRandomAngel, ReentrancyGuar
 		require(phase != SeedPhase.Locked, 'EXPIRED: SeedPhase Locked');
 		require(msg.value != 0, "Invalid, not enough ETH included in transaction. ");
 		require(_whitelisted[address(msg.sender)] == true, 'Whitelist only event, try again during the public event. ');
-        if(phase == SeedPhase.Public){
-            return mintOnBehalf(msg.sender, count);
-        }
+		if(phase == SeedPhase.Public){
+		    return mintOnBehalf(msg.sender, count);
+		}
 		require(msg.value >= mintDonation, "Invalid, not enough ETH included in transaction. ");
 		require(phase == SeedPhase.Whitelist, 'Whitelist event is not active. ');
 		require(count <= MAX_ANGELS_PER_MINTER, 'Invalid, amount to mint exceeds whitelisted reserves! Tell your friends! ');
 		require(minterAddress[msg.sender]._mintQtyByAddress.add(count) <= MAX_ANGELS_PER_MINTER, 'Max 5 Heal Angels could be minted by a single EOA. ');
-        require(_tokenIdCounter.current().add(count) <= MAX_ANGELS_SUPPLY, "Tokens number to mint exceeds number of public tokens. ");
-        if(uint(totalSupply()) >= uint(NUMBER_OF_WHITELIST_ANGELS)){
-            seedPhaseSequence();
-            return mintOnBehalf(payable(msg.sender), count);
-        }
+		require(_tokenIdCounter.current().add(count) <= MAX_ANGELS_SUPPLY, "Tokens number to mint exceeds number of public tokens. ");
+		if(uint(totalSupply()) >= uint(NUMBER_OF_WHITELIST_ANGELS)){
+		    seedPhaseSequence();
+		    return mintOnBehalf(payable(msg.sender), count);
+		}
 		for (uint256 i; i < count; i++) {
-		    minterAddress[msg.sender]._mintQtyByAddress += 1;   
-            _totalSupply += 1;   
-            _tokenIdCounter.increment();
+		    	minterAddress[msg.sender]._mintQtyByAddress += 1;   
+            		_totalSupply += 1;   
+            		_tokenIdCounter.increment();
 			uint256 id = nextToken();
 			assert(id <= MAX_ANGELS_SUPPLY);
 			nftContractAddress._safeMint(payable(msg.sender), id);
@@ -446,11 +446,11 @@ contract AngelFactory is IHealGems, MultiAuth, AssignRandomAngel, ReentrancyGuar
 		uint256 contributions = msg.value;
 		uint256 organizationDonations = contributions.mul(developmentDonationsFactor).div(100);
 		uint256 devDonations = contributions.sub(organizationDonations);
-        (bool donatedToOrg,) = _healAngelsDonationsAddress.call{value: organizationDonations}("");
-        require(donatedToOrg, "Invalid, failed to send organization donations. Please try again. Thank you! ");
-        (bool donatedToDevs,) = _cryptocurrencyDevelopers.call{value: devDonations}("");
-        require(donatedToDevs, "Invalid, failed to send develepment donations. Please try again. Thank you! ");
-        totalDonated = totalDonated += msg.value;
+		(bool donatedToOrg,) = _healAngelsDonationsAddress.call{value: organizationDonations}("");
+		require(donatedToOrg, "Invalid, failed to send organization donations. Please try again. Thank you! ");
+		(bool donatedToDevs,) = _cryptocurrencyDevelopers.call{value: devDonations}("");
+		require(donatedToDevs, "Invalid, failed to send develepment donations. Please try again. Thank you! ");
+		totalDonated = totalDonated += msg.value;
 		return true;
 	}
 
@@ -464,11 +464,11 @@ contract AngelFactory is IHealGems, MultiAuth, AssignRandomAngel, ReentrancyGuar
 		require(msg.value >= mintDonation, "Invalid, not enough ETH included in transaction. ");
 		require(count <= MAX_ANGELS_PER_MINTER, 'Invalid, amount to mint exceeds whitelisted reserves! Tell your friends! ');
 		require(minterAddress[msg.sender]._mintQtyByAddress.add(count) <= MAX_ANGELS_PER_MINTER, 'Max 5 Heal Angels could be minted by a single EOA.');
-        require(_tokenIdCounter.current().add(count) <= MAX_ANGELS_SUPPLY, "Tokens number to mint exceeds number of public tokens");
+        	require(_tokenIdCounter.current().add(count) <= MAX_ANGELS_SUPPLY, "Tokens number to mint exceeds number of public tokens");
 		
-        for (uint256 i; i < count; i++) {      
-		    minterAddress[msg.sender]._mintQtyByAddress += 1;   
-            _totalSupply += 1;    
+        	for (uint256 i; i < count; i++) {      
+		    	minterAddress[msg.sender]._mintQtyByAddress += 1;   
+            		_totalSupply += 1;    
 			uint256 id = nextToken();
 			assert(id <= MAX_ANGELS_SUPPLY);
 			nftContractAddress._safeMint(payable(receiver), id);
@@ -478,11 +478,11 @@ contract AngelFactory is IHealGems, MultiAuth, AssignRandomAngel, ReentrancyGuar
 		uint256 contributions = msg.value;
 		uint256 organizationDonations = contributions.mul(developmentDonationsFactor).div(100);
 		uint256 devDonations = contributions.sub(organizationDonations);
-        (bool donatedToOrg,) = _healAngelsDonationsAddress.call{value: organizationDonations}("");
-        require(donatedToOrg, "Invalid, failed to send organization donations. Please try again. Thank you! ");
-        (bool donatedToDevs,) = _cryptocurrencyDevelopers.call{value: devDonations}("");
-        require(donatedToDevs, "Invalid, failed to send develepment donations. Please try again. Thank you! ");
-        totalDonated = totalDonated += msg.value;
+		(bool donatedToOrg,) = _healAngelsDonationsAddress.call{value: organizationDonations}("");
+		require(donatedToOrg, "Invalid, failed to send organization donations. Please try again. Thank you! ");
+		(bool donatedToDevs,) = _cryptocurrencyDevelopers.call{value: devDonations}("");
+		require(donatedToDevs, "Invalid, failed to send develepment donations. Please try again. Thank you! ");
+		totalDonated = totalDonated += msg.value;
 		return true;
 	}
 
@@ -496,11 +496,11 @@ contract AngelFactory is IHealGems, MultiAuth, AssignRandomAngel, ReentrancyGuar
 		require(phase == SeedPhase.Public, 'Public sale is not active');
 		require(count <= MAX_ANGELS_PER_MINTER, 'Invalid, amount to mint exceeds whitelisted reserves! Tell your friends! ');
 		require(minterAddress[msg.sender]._mintQtyByAddress.add(count) <= MAX_ANGELS_PER_MINTER, 'Max 5 Heal Angels could be minted by a single EOA.');
-        require(_tokenIdCounter.current().add(count) <= MAX_ANGELS_SUPPLY, "Tokens number to mint exceeds number of public tokens");
+        	require(_tokenIdCounter.current().add(count) <= MAX_ANGELS_SUPPLY, "Tokens number to mint exceeds number of public tokens");
 		
-        for (uint256 i; i < count; i++) {      
-		    minterAddress[msg.sender]._mintQtyByAddress += 1;   
-            _totalSupply += 1;    
+        	for (uint256 i; i < count; i++) {      
+		   	minterAddress[msg.sender]._mintQtyByAddress += 1;   
+            		_totalSupply += 1;    
 			uint256 id = nextToken();
 			assert(id <= MAX_ANGELS_SUPPLY);
 			nftContractAddress._safeMint(payable(msg.sender), id);
@@ -510,10 +510,10 @@ contract AngelFactory is IHealGems, MultiAuth, AssignRandomAngel, ReentrancyGuar
 		uint256 contributions = msg.value;
 		uint256 organizationDonations = contributions.mul(developmentDonationsFactor).div(100);
 		uint256 devDonations = contributions.sub(organizationDonations);
-        (bool donatedToOrg,) = _healAngelsDonationsAddress.call{value: organizationDonations}("");
-        require(donatedToOrg, "Invalid, failed to send organization donations. Please try again. Thank you! ");
-        (bool donatedToDevs,) = _cryptocurrencyDevelopers.call{value: devDonations}("");
-        require(donatedToDevs, "Invalid, failed to send develepment donations. Please try again. Thank you! ");
+		(bool donatedToOrg,) = _healAngelsDonationsAddress.call{value: organizationDonations}("");
+		require(donatedToOrg, "Invalid, failed to send organization donations. Please try again. Thank you! ");
+		(bool donatedToDevs,) = _cryptocurrencyDevelopers.call{value: devDonations}("");
+		require(donatedToDevs, "Invalid, failed to send develepment donations. Please try again. Thank you! ");
 		totalDonated = totalDonated += msg.value;
 		return true;
 	}    
@@ -521,17 +521,16 @@ contract AngelFactory is IHealGems, MultiAuth, AssignRandomAngel, ReentrancyGuar
 	/// Public burning
 	/// @notice burns tokens to dead address, reduces totalSupply
 	/// @param tokenId tokens ID to burn in transaction
-    function burn(uint256 tokenId) public virtual nonReentrant {
-        //solhint-disable-next-line max-line-length
-        require(nftContractAddress._isApprovedOrOwner(_msgSender(), tokenId), "ERC721Burnable: caller is not owner nor approved");
-        uint256 count = 1;
-        minterAddress[msg.sender]._mintQtyByAddress.sub(count, "Insufficient Allowance");
-		
-        _burnedSupply += count;
-        nftContractAddress._burn(tokenId);
-    }
+    	function burn(uint256 tokenId) public virtual nonReentrant {
+        	//solhint-disable-next-line max-line-length
+        	require(nftContractAddress._isApprovedOrOwner(_msgSender(), tokenId), "ERC721Burnable: caller is not owner nor approved");
+        	uint256 count = 1;
+        	minterAddress[msg.sender]._mintQtyByAddress.sub(count, "Insufficient Allowance");
+        	_burnedSupply += count;
+        	nftContractAddress._burn(tokenId);
+    	}
     
-	// ======================================================== Overrides
+    // ======================================================== Overrides
 
     /**
      * @dev Sets `_tokenURI` as the tokenURI of `tokenId`.
